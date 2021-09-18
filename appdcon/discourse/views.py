@@ -63,9 +63,9 @@ class DiscourseView(View):
         # hardcode user information for now
         user_info = RedirectParams(
             nonce=connect_data.nonce,
-            email="nloyola3@gmail.com",
-            external_id=50,
-            username="nloyola3",
+            email="nloyola@gmail.com",
+            external_id=1,
+            username="nloyola1",
             name="Nelson Loyola other",
         )
 
