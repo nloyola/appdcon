@@ -1,12 +1,12 @@
 import logging
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.views import View
 from urllib.parse import ParseResult, urlencode
 from pprint import pformat
 
 from .services import DiscourseService
-from .models import Site, RedirectData
+from .models import Site, RedirectParams
 
 # to generate a secret string on Linux use the following command:
 # date +%s | sha256sum | base64 | head -c 32 ; echo
@@ -41,9 +41,9 @@ class DiscourseView(View):
             pformat({"connect_data": connect_data, "sig": sig}, sort_dicts=True)
         )
 
-        site = Site.objects.filter(url__icontains=connect_data.return_url.netloc)[0]
+        site = Site.objects.filter(hostname=connect_data.return_url.hostname).first()
 
-        if not site:
+        if site is None:
             return HttpResponseBadRequest(
                 f"no secret found for site: {connect_data.return_url.netloc}"
             )
@@ -52,9 +52,9 @@ class DiscourseView(View):
         if verification is None:
             return HttpResponseBadRequest("signature verification failed")
 
-        payload = DiscourseService.encode_and_sign_msg(
+        params = DiscourseService.encode_and_sign_msg(
             site.secret,
-            RedirectData(
+            RedirectParams(
                 nonce=connect_data.nonce,
                 email="nloyola3@gmail.com",
                 external_id=50,
@@ -68,10 +68,10 @@ class DiscourseView(View):
             connect_data.return_url.netloc,
             connect_data.return_url.path,
             connect_data.return_url.params,
-            urlencode(payload),
+            urlencode(params),
             connect_data.return_url.fragment,
         ).geturl()
 
-        logger.info("---> %s", pformat({"redir_url": redir_url, "payload": payload}))
-        # return HttpResponse("Hello, world. You're at the Discourse Connect index.")
+        logger.info("---> %s", pformat({"redir_url": redir_url, "payload": params}))
+
         return redirect(redir_url)

@@ -12,7 +12,12 @@ class ConnectData:
 
 
 @dataclass
-class RedirectData:
+class RedirectParams:
+    """
+    Holds the information to be sent back to Discourse on a valid connect request.
+
+    See: https://meta.discourse.org/t/discourseconnect-official-single-sign-on-for-discourse-sso/13045
+    """
     nonce: str
     email: str
     external_id: str
@@ -22,8 +27,8 @@ class RedirectData:
 
 class Site(models.Model):
     """
-    The information required to use Discourse Connect.
+    The information required to use Discourse Connect for a single Discourse site.
     """
 
-    url = models.CharField(max_length=255, blank=False)
+    hostname = models.CharField(max_length=255, blank=False)
     secret = models.CharField(max_length=255, blank=False)

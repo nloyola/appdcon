@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from typing import Optional
 from urllib.parse import parse_qs, urlencode
 
-from .models import ConnectData, RedirectData
+from .models import ConnectData, RedirectParams
 from pprint import pformat
 
 # http://192.168.50.5:8000/discourse/
@@ -62,7 +62,7 @@ class DiscourseService:
             return None
 
     @staticmethod
-    def encode_and_sign_msg(secret: str, data: RedirectData) -> dict[str, str]:
+    def encode_and_sign_msg(secret: str, data: RedirectParams) -> dict[str, str]:
         """Encodes and signs a message to be used to reply to a Discourse Connect request"""
         msg = urlencode(
             {
