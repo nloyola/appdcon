@@ -1,0 +1,10 @@
+[
+  {
+    "model": "discourse.site",
+    "pk": 1,
+    "fields": {
+      "hostname": "nloyola.asuscomm.com",
+      "secret": "NDEzNzc3MzYxMzE2YzM3ZDdkZjJlYzc1"
+    }
+  }
+]
