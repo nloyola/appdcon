@@ -17,6 +17,8 @@ class RedirectParams:
     Holds the information to be sent back to Discourse on a valid connect request.
 
     See: https://meta.discourse.org/t/discourseconnect-official-single-sign-on-for-discourse-sso/13045
+
+    The "external_id" is used by Discourse as a unique ID to identify the user.
     """
     nonce: str
     email: str

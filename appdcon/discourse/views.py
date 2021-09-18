@@ -52,16 +52,21 @@ class DiscourseView(View):
         if verification is None:
             return HttpResponseBadRequest("signature verification failed")
 
-        params = DiscourseService.encode_and_sign_msg(
-            site.secret,
-            RedirectParams(
-                nonce=connect_data.nonce,
-                email="nloyola3@gmail.com",
-                external_id=50,
-                username="nloyola3",
-                name="Nelson Loyola other",
-            ),
+        # if user is NOT logged in, then we have to redirect them to the login page. After logging
+        # in, the user must be redirected to Discourse.
+        #
+        # if user IS logged in, we create the redirect parameters required by Discourse Connect
+
+        # hardcode user information for now
+        user_info = RedirectParams(
+            nonce=connect_data.nonce,
+            email="nloyola3@gmail.com",
+            external_id=50,
+            username="nloyola3",
+            name="Nelson Loyola other",
         )
+
+        params = DiscourseService.encode_and_sign_msg(site.secret, user_info)
 
         redir_url = ParseResult(
             connect_data.return_url.scheme,
