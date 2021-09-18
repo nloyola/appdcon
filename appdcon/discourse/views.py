@@ -48,12 +48,15 @@ class DiscourseView(View):
                 f"no secret found for site: {connect_data.return_url.netloc}"
             )
 
-        verification = DiscourseService.verify_sso(site.secret, sso, sig)
+        verification = DiscourseService.verify_connecta_attempt(site.secret, sso, sig)
         if verification is None:
+            return HttpResponseBadRequest("sso hashing failed")
+
+        if not verification:
             return HttpResponseBadRequest("signature verification failed")
 
-        # if user is NOT logged in, then we have to redirect them to the login page. After logging
-        # in, the user must be redirected to Discourse.
+        # if user is NOT logged in, then we have to redirect them to the login page. After
+        # successfully logging in, the user must be redirected to Discourse.
         #
         # if user IS logged in, we create the redirect parameters required by Discourse Connect
 
@@ -77,6 +80,6 @@ class DiscourseView(View):
             connect_data.return_url.fragment,
         ).geturl()
 
-        logger.info("---> %s", pformat({"redir_url": redir_url, "payload": params}))
+        logger.info(pformat({"redir_url": redir_url, "payload": params}))
 
         return redirect(redir_url)

@@ -47,7 +47,7 @@ class DiscourseService:
             return None
 
     @staticmethod
-    def verify_sso(secret: str, sso: str, sig: str) -> Optional[bool]:
+    def verify_connecta_attempt(secret: str, sso: str, sig: str) -> Optional[bool]:
         """
         Verifies that encoding sso as HMAC-SHA256 matches the signature in sig. The secret is
         used to encode the sso.
