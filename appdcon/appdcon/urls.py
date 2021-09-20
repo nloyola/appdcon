@@ -16,10 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from . import views
+from .views import HomepageView
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', HomepageView.as_view(), name='home'),
     path('admin/', admin.site.urls),
     path('discourse/', include('discourse.urls')),
 ]

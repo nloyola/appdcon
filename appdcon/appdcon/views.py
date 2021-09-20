@@ -1,8 +1,8 @@
-from django.http import HttpResponse
-from django.template import loader
+from django.views.generic import TemplateView
 
 
-def index(request):
-    template = loader.get_template('appdcon/index.html')
-    context = {"discourse_link": "https://nloyola.asuscomm.com/session/sso"}
-    return HttpResponse(template.render(context, request))
+class HomepageView(TemplateView):
+    template_name = 'appdcon/index.html'
+
+    def get_context_data(self, **kwargs):
+        return {"discourse_link": "https://nloyola.asuscomm.com/session/sso"}
