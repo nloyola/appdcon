@@ -1,3 +1,7 @@
 <p>A Django application to test Discourse Connect connectivity.</p>
 
-<a href="{{ discourse_link }}" target="_blank">Open Discourse</a>
+{% for hostname in hostnames %}
+<a href="https://{{ hostname }}/session/sso" target="_blank">
+  Open Discourse on {{ hostname }}
+</a>
+{% endfor %}

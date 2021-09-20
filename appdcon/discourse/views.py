@@ -2,11 +2,11 @@ import logging
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.views import View
-from urllib.parse import ParseResult, urlencode
+from urllib.parse import ParseResult
 from pprint import pformat
 
 from .services import DiscourseService
-from .models import Site, RedirectParams
+from .models import SignedSingleSignOn, SingleSignOn
 
 # to generate a secret string on Linux use the following command:
 # date +%s | sha256sum | base64 | head -c 32 ; echo
@@ -32,23 +32,23 @@ class DiscourseView(View):
         if len(errors):
             return HttpResponseBadRequest(", ".join(errors))
 
-        connect_data = DiscourseService.decode_sso(sso)
+        sso_encoded = SignedSingleSignOn(value=sso, signature=sig)
 
-        if connect_data is None:
+        single_signon = DiscourseService.decode_single_signon(sso_encoded)
+
+        if single_signon is None:
             return HttpResponseBadRequest("unable to decode sso")
 
-        logger.info(
-            pformat({"connect_data": connect_data, "sig": sig}, sort_dicts=True)
-        )
+        logger.info(pformat(single_signon))
 
-        site = Site.objects.filter(hostname=connect_data.return_url.hostname).first()
+        site = DiscourseService().find_site(single_signon.return_url.hostname)
 
         if site is None:
             return HttpResponseBadRequest(
-                f"no secret found for site: {connect_data.return_url.netloc}"
+                f"no secret found for site: {single_signon.return_url.netloc}"
             )
 
-        verification = DiscourseService.verify_connecta_attempt(site.secret, sso, sig)
+        verification = DiscourseService.verify_single_signon(site.secret, sso_encoded)
         if verification is None:
             return HttpResponseBadRequest("sso hashing failed")
 
@@ -61,25 +61,25 @@ class DiscourseView(View):
         # if user IS logged in, we create the redirect parameters required by Discourse Connect
 
         # hardcode user information for now
-        user_info = RedirectParams(
-            nonce=connect_data.nonce,
+        user_info = SingleSignOn(
+            nonce=single_signon.nonce,
             email="nloyola@gmail.com",
             external_id=1,
             username="nloyola1",
             name="Nelson Loyola other",
         )
 
-        params = DiscourseService.encode_and_sign_msg(site.secret, user_info)
+        user_encoded = DiscourseService.sign_single_signon(site.secret, user_info)
 
         redir_url = ParseResult(
-            connect_data.return_url.scheme,
-            connect_data.return_url.netloc,
-            connect_data.return_url.path,
-            connect_data.return_url.params,
-            urlencode(params),
-            connect_data.return_url.fragment,
+            single_signon.return_url.scheme,
+            single_signon.return_url.netloc,
+            single_signon.return_url.path,
+            single_signon.return_url.params,
+            user_encoded.urlencode(),
+            single_signon.return_url.fragment,
         ).geturl()
 
-        logger.info(pformat({"redir_url": redir_url, "payload": params}))
+        logger.info(pformat({"redir_url": redir_url, "params": user_encoded}))
 
         return redirect(redir_url)

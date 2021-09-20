@@ -174,7 +174,7 @@ CUSTOM_LOGGING = {
             "handlers": ["console"],
             'propagate': False,
         },
-        "discourse": {
+        "discourse.services": {
             "level": os.getenv("LOGLEVEL", "debug").upper(),
             "handlers": ["console"],
             'propagate': False,
