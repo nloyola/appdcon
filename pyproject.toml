@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "appdcon"
+version = "0.1.0"
+description = "A Django application to test Discourse Connect connectivity"
+authors = ["Nelson Loyola <nloyola@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Django = "^3.2.7"
+
+[tool.poetry.dev-dependencies]
+python-language-server = {extras = ["all"], version = "^0.36.2"}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
